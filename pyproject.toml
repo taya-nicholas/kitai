@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kitai"
+dynamic = ["version"]
+description = ""
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "Apache-2.0"}
+authors = [{name = "Taya Nicholas", email = "taya.nicholas@outlook.com"}]
+keywords = ['nbdev']
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+]
+dependencies = []
+
+[project.urls]
+Repository = "https://github.com/taya-nicholas/kitai"
+Documentation = "https://taya-nicholas.github.io/kitai/"
+
+[project.entry-points.nbdev]
+kitai = "kitai._modidx:d"
+
+[tool.setuptools.dynamic]
+version = {attr = "kitai.__version__"}
+
+[tool.setuptools.packages.find]
+include = ["kitai"]
+
+[tool.nbdev]

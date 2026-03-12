@@ -1,0 +1,9 @@
+project:
+  output-dir: _docs
+
+website:
+  title: "kitai"
+  site-url: "https://taya-nicholas.github.io/kitai"
+  description: ""
+  repo-branch: main
+  repo-url: "https://github.com/taya-nicholas/kitai"
