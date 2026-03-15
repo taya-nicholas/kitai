@@ -35,3 +35,4 @@ version = {attr = "kitai.__version__"}
 include = ["kitai"]
 
 [tool.nbdev]
+tst_skip = "00_core.ipynb index.ipynb"
