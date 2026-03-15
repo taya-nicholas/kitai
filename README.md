@@ -13,7 +13,7 @@ a framework that fits your exact use case.
 
 - **Hierarchical agents** - subagents with automatic transfer tools for
   navigation
-- **Simple tools** - use any function with type-hints and a docstring as a tool
+- **Simple tools** - any function is a tool, no decorators needed
 - **`tool_ctx` injection** - shared state dict automatically passed to
   tools that need it
 - **Instruction templating** - system prompts auto-filled from state
