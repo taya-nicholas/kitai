@@ -7,7 +7,7 @@ Kitai is a short agent framework that aims to implement the core
 features of Google’s ADK in as simple and concise a way as possible.
 Read through in one sitting to get a better understanding of how
 hierarchical agents work under the hood, or adapt and modify it to make
-a framework that fits your exact usecase.
+a framework that fits your exact use case.
 
 ## Features
 
@@ -42,11 +42,11 @@ def mult(a:int, b:int):
     return a * b
 
 def save(result:str, tool_ctx):
-    "Saves some result passed into into storage"
+    "Saves some result passed into storage"
     tool_ctx["final_result"] = result
 
 m = "anthropic/claude-haiku-4-5"
-a_saver = Agent(m, name="saver", desc="Saves results into storage.", sp="You recieve results from other agents and save them with your tool.", tools=[save])
+a_saver = Agent(m, name="saver", desc="Saves results into storage.", sp="You receive results from other agents and save them with your tool.", tools=[save])
 a_maths = Agent(m, name="math_agent", desc="Is good at doing maths.", sp="Always do maths using tools and always pass to saver to save results.", tools=[mult], subagents=[a_saver])
 a_writing = Agent("anthropic/claude-opus-4-6", name="writer", desc="A smart and expensive model to help with writing", sp="You help users with writing")
 a_root = Agent(m, name="root", desc="General agent", sp="A general coordinator that delegates to sub agents as needed", subagents=[a_maths])
