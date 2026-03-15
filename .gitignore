@@ -25,6 +25,8 @@ cashy.jsonl
 nbs/cashy.jsonl
 .sess
 nbs/.sess
+nbs/cachy.jsonl
+cachy.jsonl
 
 # Distribution / packaging
 .Python
