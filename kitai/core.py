@@ -2,7 +2,7 @@
 
 # %% auto #0
 __all__ = ['mk_schema', 'Agent', 'call_llm_tool', 'mk_transfer_doc', 'with_model_nm', 'Runner', 'msg_fragment',
-           'mk_narrative_cast', 'filter_out_history', 'assistant_response', 'tool_response', 'mk_cb_msg']
+           'mk_narrative_cast', 'filter_out_history', 'assistant_response', 'tool_response', 'mk_cb_msg', 'Sequential']
 
 # %% ../nbs/00_core.ipynb #82f94d48
 import asyncio, inspect, json, uuid
@@ -168,3 +168,16 @@ def __call__(self:Agent, msgs:list|str, state=None, **kwargs):
     if res := self.run_callback(self.before_cb, msgs, state): return res
     response = completion(model=self.model, messages=msgs, tools=self.tool_schemas, **kwargs)
     return self.run_callback(self.after_cb, response, state) or response 
+
+# %% ../nbs/00_core.ipynb #375bc341
+class Sequential(Runner):
+    def __init__(self, agent_list:list):
+        super().__init__(agent_list[0])
+        self.agent_list = agent_list
+    def register_subagents(self, agent, parent=None): pass
+    def run(self, start_msg="start", **kwargs):
+        self.history.append({"content": start_msg, "role": "user", "agent": self.active_agent.name})
+        for agent in self.agent_list:
+            self.active_agent = agent
+            self(self.history, **kwargs)
+
