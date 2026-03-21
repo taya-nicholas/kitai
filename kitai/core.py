@@ -140,7 +140,7 @@ def preproc_msg(self:Agent, msgs:list|str, state=None):
     if isinstance(msgs, str): msgs = [{"content": msgs, "role": "user"}]
     if not self.include_hist: msgs = filter_out_history(msgs, active_agent=self.name)
     if self.narrative_cast:   msgs = mk_narrative_cast(msgs, active_agent=self.name)
-    if self.sp:               msgs = [{"content": self.sp.format_map(state or {}), "role": "system"}, *msgs]
+    if self.sp:               msgs = [{"content": self.sp.format_map(state), "role": "system"}, *msgs]
     return msgs
 
 # %% ../nbs/00_core.ipynb #a8ea4152
@@ -157,16 +157,16 @@ def mk_cb_msg(msg:str|partial|ModelResponse):
         case partial()       as o: return tool_response(o.func.__name__, o.keywords)
         case ModelResponse() as o: return o
 
-# %% ../nbs/00_core.ipynb #b6ca0d34
+# %% ../nbs/00_core.ipynb #301ef85a
 @patch
 def run_callback(self:Agent, fn, msgs:list, state:dict): 
-    if callable(fn): return mk_cb_msg(fn(state or {}, msgs))
+    if callable(fn): return mk_cb_msg(fn(state, msgs))
 
 @patch
 def __call__(self:Agent, msgs:list|str, state=None, **kwargs):
-    msgs = self.preproc_msg(msgs, state)
+    if state is None: state = {}
     if res := self.run_callback(self.before_cb, msgs, state): return res
-    response = completion(model=self.model, messages=msgs, tools=self.tool_schemas, **kwargs)
+    response = completion(model=self.model, messages=self.preproc_msg(msgs, state), tools=self.tool_schemas, **kwargs)
     return self.run_callback(self.after_cb, response, state) or response 
 
 # %% ../nbs/00_core.ipynb #375bc341
