@@ -11,6 +11,7 @@ from functools import partial
 from itertools import groupby
 from typing import Callable
 from fastcore.basics import patch, Self
+from fastcore.meta import delegates
 from fastcore.utils import L, store_attr
 from litellm import ModelResponse, completion
 from toolslm.funccall import get_schema
@@ -37,7 +38,8 @@ class Agent:
         narrative_cast=True, # to narrative cast or not
         include_hist=True,   # if False: will remove all history that doesn't belong to this agent on call
         before_cb=None,      # a callback func(state:dict, msgs:list). Any non-None return will skip the llm
-        after_cb=None        # a callback func(state:dict, response) that can edit and modify the llm response
+        after_cb=None,       # a callback func(state:dict, response) that can edit and modify the llm response
+        output_key=None,     # saves model response to state with a keyname defined by output_key 
     ):
         store_attr(but="tools,subagents")
         self.tool_map = {}
@@ -90,7 +92,7 @@ class Runner:
         agent.add_tool(transfer_to_agent)
         [self.register_subagents(sub, parent=agent) for sub in agent.subagents]
         
-    def __call__(self, msg:list|str, max_calls=20, do_display=True, **kwargs):
+    def _call(self, msg:list|str, max_calls=20, do_display=True, **kwargs):
         if isinstance(msg, str): self.history.append({"content": msg, "role": "user", "agent": self.active_agent.name})
         else:                    self.history = list(msg)
 
@@ -105,6 +107,9 @@ class Runner:
                 tool_res = call_llm_tool(tool_call.function, self.active_agent.tool_map, self.state)
                 self.history.append({"role": "tool", "tool_call_id": tool_call.id, "content": tool_res, "agent": nm})
         return choice
+    
+    @delegates(_call)
+    def __call__(self, msg:list|str, **kwargs): return self._call(msg, **kwargs)
 
 
 # %% ../nbs/00_core.ipynb #2566e5f5
@@ -162,11 +167,20 @@ def mk_cb_msg(msg:str|partial|ModelResponse):
 def run_callback(self:Agent, fn, msgs:list, state:dict): 
     if callable(fn): return mk_cb_msg(fn(state, msgs))
 
+# %% ../nbs/00_core.ipynb #e22cf4b9
+@patch
+def maybe_save_to_output_key(self:Agent, state, response):
+    if self.output_key is None: return
+    if (ctn := response.choices[0].message.content) is not None:
+        state[self.output_key] = ctn
+
+# %% ../nbs/00_core.ipynb #f3d6df51
 @patch
 def __call__(self:Agent, msgs:list|str, state=None, **kwargs):
     if state is None: state = {}
     if res := self.run_callback(self.before_cb, msgs, state): return res
     response = completion(model=self.model, messages=self.preproc_msg(msgs, state), tools=self.tool_schemas, **kwargs)
+    self.maybe_save_to_output_key(state, response)
     return self.run_callback(self.after_cb, response, state) or response 
 
 # %% ../nbs/00_core.ipynb #375bc341
@@ -175,9 +189,9 @@ class Sequential(Runner):
         super().__init__(agent_list[0])
         self.agent_list = agent_list
     def register_subagents(self, agent, parent=None): pass
-    def run(self, start_msg="start", **kwargs):
+    def __call__(self, start_msg="start", **kwargs):
         self.history.append({"content": start_msg, "role": "user", "agent": self.active_agent.name})
         for agent in self.agent_list:
             self.active_agent = agent
-            self(self.history, **kwargs)
+            self._call(self.history, **kwargs)
 
