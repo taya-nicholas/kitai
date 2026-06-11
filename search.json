@@ -1,0 +1,152 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "kitai",
+    "section": "",
+    "text": "Kitai is a short agent framework that aims to implement the core features of Google’s ADK in as simple and concise a way as possible. Read through in one sitting to get a better understanding of how hierarchical agents work under the hood, or adapt and modify it to make a framework that fits your exact use case.",
+    "crumbs": [
+      "kitai"
+    ]
+  },
+  {
+    "objectID": "index.html#features",
+    "href": "index.html#features",
+    "title": "kitai",
+    "section": "Features",
+    "text": "Features\n\nHierarchical agents - subagents with automatic transfer tools for navigation\nSimple tools - any function is a tool, no decorators needed\ntool_ctx injection - shared state dict automatically passed to tools that need it\nInstruction templating - system prompts auto-filled from state using {var} syntax\nNarrative casting - prior agent messages are summarised and tagged for clarity\nHistory filtering - subagents can ignore irrelevant history to preserve context\nBefore/after callbacks - hook into the agent loop to skip, modify, or replace calls\nAny LLM provider - built on LiteLLM",
+    "crumbs": [
+      "kitai"
+    ]
+  },
+  {
+    "objectID": "index.html#installation",
+    "href": "index.html#installation",
+    "title": "kitai",
+    "section": "Installation",
+    "text": "Installation\npip install kitai",
+    "crumbs": [
+      "kitai"
+    ]
+  },
+  {
+    "objectID": "index.html#quick-start",
+    "href": "index.html#quick-start",
+    "title": "kitai",
+    "section": "Quick start",
+    "text": "Quick start\n\nfrom kitai import Agent, Runner\n\ndef mult(a:int, b:int):\n    \"Multiplies two numbers together\"\n    return a * b\n\ndef save(result:str, tool_ctx):\n    \"Saves some result passed into storage\"\n    tool_ctx[\"final_result\"] = result\n\nm = \"anthropic/claude-haiku-4-5\"\na_saver = Agent(m, name=\"saver\", desc=\"Saves results into storage.\", sp=\"You receive results from other agents and save them with your tool.\", tools=[save])\na_maths = Agent(m, name=\"math_agent\", desc=\"Is good at doing maths.\", sp=\"Always do maths using tools and always pass to saver to save results.\", tools=[mult], subagents=[a_saver])\na_writing = Agent(\"anthropic/claude-opus-4-6\", name=\"writer\", desc=\"A smart and expensive model to help with writing\", sp=\"You help users with writing\")\na_root = Agent(m, name=\"root\", desc=\"General agent\", sp=\"A general coordinator that delegates to sub agents as needed\", subagents=[a_maths])\n\nr = Runner(a_root)\nr(\"What's 259875 * 175825?\")\nr.state\n\n🔧 transfer_to_agent({“agent_name”: “math_agent”})\n\n\nid: chatcmpl-fb0465db-7131-43b5-a04b-cfc54cca2726\nmodel: claude-haiku-4-5-20251001\nfinish_reason: tool_calls\nusage: Usage(completion_tokens=60, prompt_tokens=614, total_tokens=674, completion_tokens_details=CompletionTokensDetailsWrapper(accepted_prediction_tokens=None, audio_tokens=None, reasoning_tokens=0, rejected_prediction_tokens=None, text_tokens=60, image_tokens=None, video_tokens=None), prompt_tokens_details=PromptTokensDetailsWrapper(audio_tokens=None, cached_tokens=0, text_tokens=None, image_tokens=None, video_tokens=None, cache_creation_tokens=0, cache_creation_token_details=CacheCreationTokenDetails(ephemeral_5m_input_tokens=0, ephemeral_1h_input_tokens=0)), cache_creation_input_tokens=0, cache_read_input_tokens=0, inference_geo='not_available', speed=None)\n\n\n\n\n🔧 mult({“a”: 259875, “b”: 175825})\n\n\nid: chatcmpl-6fd553b0-d664-4700-a3a0-993d35b42f62\nmodel: claude-haiku-4-5-20251001\nfinish_reason: tool_calls\nusage: Usage(completion_tokens=90, prompt_tokens=726, total_tokens=816, completion_tokens_details=CompletionTokensDetailsWrapper(accepted_prediction_tokens=None, audio_tokens=None, reasoning_tokens=0, rejected_prediction_tokens=None, text_tokens=90, image_tokens=None, video_tokens=None), prompt_tokens_details=PromptTokensDetailsWrapper(audio_tokens=None, cached_tokens=0, text_tokens=None, image_tokens=None, video_tokens=None, cache_creation_tokens=0, cache_creation_token_details=CacheCreationTokenDetails(ephemeral_5m_input_tokens=0, ephemeral_1h_input_tokens=0)), cache_creation_input_tokens=0, cache_read_input_tokens=0, inference_geo='not_available', speed=None)\n\n\n\n\nNow let me save this result to storage:\n🔧 transfer_to_agent({“agent_name”: “saver”})\n\n\nid: chatcmpl-e8af0e95-0465-48ea-adce-61a45730e6fb\nmodel: claude-haiku-4-5-20251001\nfinish_reason: tool_calls\nusage: Usage(completion_tokens=83, prompt_tokens=832, total_tokens=915, completion_tokens_details=CompletionTokensDetailsWrapper(accepted_prediction_tokens=None, audio_tokens=None, reasoning_tokens=0, rejected_prediction_tokens=None, text_tokens=83, image_tokens=None, video_tokens=None), prompt_tokens_details=PromptTokensDetailsWrapper(audio_tokens=None, cached_tokens=0, text_tokens=None, image_tokens=None, video_tokens=None, cache_creation_tokens=0, cache_creation_token_details=CacheCreationTokenDetails(ephemeral_5m_input_tokens=0, ephemeral_1h_input_tokens=0)), cache_creation_input_tokens=0, cache_read_input_tokens=0, inference_geo='not_available', speed=None)\n\n\n\n\n🔧 save({“result”: “259875 * 175825 = 45692521875”})\n\n\nid: chatcmpl-e1dabf48-5b91-4af8-a495-2a1a31e54756\nmodel: claude-haiku-4-5-20251001\nfinish_reason: tool_calls\nusage: Usage(completion_tokens=73, prompt_tokens=787, total_tokens=860, completion_tokens_details=CompletionTokensDetailsWrapper(accepted_prediction_tokens=None, audio_tokens=None, reasoning_tokens=0, rejected_prediction_tokens=None, text_tokens=73, image_tokens=None, video_tokens=None), prompt_tokens_details=PromptTokensDetailsWrapper(audio_tokens=None, cached_tokens=0, text_tokens=None, image_tokens=None, video_tokens=None, cache_creation_tokens=0, cache_creation_token_details=CacheCreationTokenDetails(ephemeral_5m_input_tokens=0, ephemeral_1h_input_tokens=0)), cache_creation_input_tokens=0, cache_read_input_tokens=0, inference_geo='not_available', speed=None)\n\n\n\n\n\n\nid: chatcmpl-919aad53-f580-4acf-b5d4-b5d200cb4f3e\nmodel: claude-haiku-4-5-20251001\nfinish_reason: stop\nusage: Usage(completion_tokens=31, prompt_tokens=873, total_tokens=904, completion_tokens_details=CompletionTokensDetailsWrapper(accepted_prediction_tokens=None, audio_tokens=None, reasoning_tokens=0, rejected_prediction_tokens=None, text_tokens=31, image_tokens=None, video_tokens=None), prompt_tokens_details=PromptTokensDetailsWrapper(audio_tokens=None, cached_tokens=0, text_tokens=None, image_tokens=None, video_tokens=None, cache_creation_tokens=0, cache_creation_token_details=CacheCreationTokenDetails(ephemeral_5m_input_tokens=0, ephemeral_1h_input_tokens=0)), cache_creation_input_tokens=0, cache_read_input_tokens=0, inference_geo='not_available', speed=None)\n\n\n\n\n{'final_result': '259875 * 175825 = 45692521875'}",
+    "crumbs": [
+      "kitai"
+    ]
+  },
+  {
+    "objectID": "00_core.html",
+    "href": "00_core.html",
+    "title": "kitai",
+    "section": "",
+    "text": "from cachy import enable_cachy\nenable_cachy()\n\n\nm = \"anthropic/claude-haiku-4-5\"",
+    "crumbs": [
+      "Imports"
+    ]
+  },
+  {
+    "objectID": "00_core.html#imports",
+    "href": "00_core.html#imports",
+    "title": "kitai",
+    "section": "",
+    "text": "from cachy import enable_cachy\nenable_cachy()\n\n\nm = \"anthropic/claude-haiku-4-5\"",
+    "crumbs": [
+      "Imports"
+    ]
+  },
+  {
+    "objectID": "00_core.html#model-response-helpers",
+    "href": "00_core.html#model-response-helpers",
+    "title": "kitai",
+    "section": "Model response helpers",
+    "text": "Model response helpers\n\n\nassistant_response\n\ndef assistant_response(\n    content:NoneType=None, tool_calls:NoneType=None, finish_reason:str='stop'\n):\n\nCall self as a function.\n\n\n\ntool_response\n\ndef tool_response(\n    name:str, arguments:dict\n):\n\nCall self as a function.\n\n\n\nmk_cb_msg\n\ndef mk_cb_msg(\n    msg:str | functools.partial | litellm.types.utils.ModelResponse\n):\n\nCall self as a function.\n\n\n\ndrain_result\n\ndef drain_result(\n    gen\n):\n\nCall self as a function.",
+    "crumbs": [
+      "Imports"
+    ]
+  },
+  {
+    "objectID": "00_core.html#tool-helpers",
+    "href": "00_core.html#tool-helpers",
+    "title": "kitai",
+    "section": "Tool helpers",
+    "text": "Tool helpers\n\n\nmk_schema\n\ndef mk_schema(\n    fn, strip:tuple=('tool_ctx',)\n):\n\nCall self as a function.\n\n\n\ncall_llm_tool\n\ndef call_llm_tool(\n    tc_func:dict, tool_map:dict, state:dict\n):\n\nCall self as a function.",
+    "crumbs": [
+      "Imports"
+    ]
+  },
+  {
+    "objectID": "00_core.html#streaming-completions",
+    "href": "00_core.html#streaming-completions",
+    "title": "kitai",
+    "section": "Streaming completions",
+    "text": "Streaming completions\n\n\naccumulate_toolcalls\n\ndef accumulate_toolcalls(\n    tool_buf:dict, delta\n):\n\nCall self as a function.\n\n\n\nstream_completion\n\ndef stream_completion(\n    model, messages, tools:NoneType=None, agent:str='', kwargs:VAR_KEYWORD\n):\n\nCall self as a function.",
+    "crumbs": [
+      "Imports"
+    ]
+  },
+  {
+    "objectID": "00_core.html#message-preprocessing",
+    "href": "00_core.html#message-preprocessing",
+    "title": "kitai",
+    "section": "Message preprocessing",
+    "text": "Message preprocessing\n\n\nmsg_fragment\n\ndef msg_fragment(\n    d:dict, results:dict\n):\n\nCall self as a function.\n\n\n\nmk_narrative_cast\n\ndef mk_narrative_cast(\n    msg_list:list, active_agent:str\n):\n\nCall self as a function.\n\n\n\nfilter_out_history\n\ndef filter_out_history(\n    msgs:list, active_agent:str\n):\n\nCall self as a function.",
+    "crumbs": [
+      "Imports"
+    ]
+  },
+  {
+    "objectID": "00_core.html#agent",
+    "href": "00_core.html#agent",
+    "title": "kitai",
+    "section": "Agent",
+    "text": "Agent\n\n\nAgent\n\ndef Agent(\n    model:str, # model str in litellm format\n    name:str='', # name of the agent\n    desc:str='', # what the agent does, used by parent agents to decide when to transfer\n    sp:NoneType=None, # system prompt\n    tools:NoneType=None, # tools provided to the agent\n    subagents:NoneType=None, # subagents this agent can transfer to\n    narrative_cast:bool=True, # transform prior agent messages into narrative form\n    include_hist:bool=True, # if False, remove older history not belonging to this agent\n    before_cb:NoneType=None, # callback func(state, msgs); non-None return skips LLM\n    after_cb:NoneType=None, # callback func(state, response); can replace LLM response\n    output_key:NoneType=None, # save model response content to state[output_key]\n    llm_kwargs:NoneType=None\n):\n\nInitialize self. See help(type(self)) for accurate signature.\n\n\n\nAgent.preproc_msg\n\ndef preproc_msg(\n    msgs:list | str, state:NoneType=None\n):\n\nCall self as a function.\n\n\n\nAgent.run_callback\n\ndef run_callback(\n    fn, msgs:list, state:dict\n):\n\nCall self as a function.\n\n\n\nAgent.maybe_save_to_output_key\n\ndef maybe_save_to_output_key(\n    state, response\n):\n\nCall self as a function.\n\n\n\nAgent.__call__\n\ndef __call__(\n    msgs:list | str, state:NoneType=None, kwargs:VAR_KEYWORD\n):\n\nCall self as a function.\n\n\n\nAgent.stream\n\ndef stream(\n    msgs:list | str, state:NoneType=None, kwargs:VAR_KEYWORD\n):\n\nCall self as a function.",
+    "crumbs": [
+      "Imports"
+    ]
+  },
+  {
+    "objectID": "00_core.html#runner",
+    "href": "00_core.html#runner",
+    "title": "kitai",
+    "section": "Runner",
+    "text": "Runner\n\n\nwith_model_nm\n\ndef with_model_nm(\n    llm_output, nm:str\n):\n\nCall self as a function.\n\n\n\nmk_transfer_doc\n\ndef mk_transfer_doc(\n    agent, parent\n):\n\nCall self as a function.\n\n\n\nRunner\n\ndef Runner(\n    agent:Agent\n):\n\nInitialize self. See help(type(self)) for accurate signature.",
+    "crumbs": [
+      "Imports"
+    ]
+  },
+  {
+    "objectID": "00_core.html#sequential",
+    "href": "00_core.html#sequential",
+    "title": "kitai",
+    "section": "Sequential",
+    "text": "Sequential\n\n\nSequential\n\ndef Sequential(\n    agent_list:list\n):\n\nInitialize self. See help(type(self)) for accurate signature.",
+    "crumbs": [
+      "Imports"
+    ]
+  },
+  {
+    "objectID": "00_core.html#examples",
+    "href": "00_core.html#examples",
+    "title": "kitai",
+    "section": "Examples",
+    "text": "Examples\n\ndef mult(a:int, b:int):\n    \"Multiplies two numbers together\"\n    return a * b\n\n\ndef save(result:str, tool_ctx):\n    \"Saves some result passed into storage\"\n    tool_ctx[\"final_result\"] = result\n\n\nsaver = Agent(m, name=\"saver\", desc=\"Saves results into storage.\", sp=\"You receive results from other agents and save them with your tool.\", tools=[save])\nmath_agent = Agent(m, name=\"math_agent\", desc=\"Is good at doing maths.\", sp=\"Always do maths using tools and always pass to saver to save results.\", tools=[mult], subagents=[saver])\nroot = Agent(m, name=\"root\", desc=\"General agent\", sp=\"A general coordinator that delegates to sub agents as needed\", subagents=[math_agent])\n\nr = Runner(root)\nr(\"What's 359231 x 235981\")\n\n\nTool calls: - 🔧 transfer_to_agent {\"agent_name\": \"math_agent\"}\n\n\n\n\nTool calls: - 🔧 mult {\"a\": 359231, \"b\": 235981}\n\n\n\n\nTool calls: - 🔧 transfer_to_agent {\"agent_name\": \"saver\"}\n\n\n\n\nTool calls: - 🔧 save {\"result\": \"359231 × 235981 = 84,771,690,611\"}\n\n\n\n\n\n\n\n\n[{'content': None,\n  'role': 'assistant',\n  'tool_calls': [{'function': {'arguments': '{\"agent_name\": \"math_agent\"}',\n     'name': 'transfer_to_agent'},\n    'id': 'toolu_0128PhvCTy9S8CjWFvHWGEx6',\n    'type': 'function'}],\n  'function_call': None,\n  'provider_specific_fields': None,\n  'agent': 'root'},\n {'role': 'tool',\n  'tool_call_id': 'toolu_0128PhvCTy9S8CjWFvHWGEx6',\n  'content': 'null',\n  'agent': 'root'},\n {'content': \"I'll calculate 359231 × 235981 for you using the multiplication tool, and then transfer the result to the saver agent.\",\n  'role': 'assistant',\n  'tool_calls': [{'function': {'arguments': '{\"a\": 359231, \"b\": 235981}',\n     'name': 'mult'},\n    'id': 'toolu_01HwBAkHnpdh1ASVsqDHf9qo',\n    'type': 'function'}],\n  'function_call': None,\n  'provider_specific_fields': None,\n  'agent': 'math_agent'},\n {'role': 'tool',\n  'tool_call_id': 'toolu_01HwBAkHnpdh1ASVsqDHf9qo',\n  'content': '84771690611',\n  'agent': 'math_agent'},\n {'content': 'Great! The result is **84,771,690,611**. Now let me transfer this to the saver agent to save the result:',\n  'role': 'assistant',\n  'tool_calls': [{'function': {'arguments': '{\"agent_name\": \"saver\"}',\n     'name': 'transfer_to_agent'},\n    'id': 'toolu_01M4aC8gLJcjJZ292pQfM9W9',\n    'type': 'function'}],\n  'function_call': None,\n  'provider_specific_fields': None,\n  'agent': 'math_agent'},\n {'role': 'tool',\n  'tool_call_id': 'toolu_01M4aC8gLJcjJZ292pQfM9W9',\n  'content': 'null',\n  'agent': 'math_agent'},\n {'content': \"I'll save that result for you.\",\n  'role': 'assistant',\n  'tool_calls': [{'function': {'arguments': '{\"result\": \"359231 × 235981 = 84,771,690,611\"}',\n     'name': 'save'},\n    'id': 'toolu_01XA5i1ySEcQFhQXEUw4A4nf',\n    'type': 'function'}],\n  'function_call': None,\n  'provider_specific_fields': None,\n  'agent': 'saver'},\n {'role': 'tool',\n  'tool_call_id': 'toolu_01XA5i1ySEcQFhQXEUw4A4nf',\n  'content': 'null',\n  'agent': 'saver'},\n {'content': 'The calculation has been completed and saved! **359231 × 235981 = 84,771,690,611**',\n  'role': 'assistant',\n  'tool_calls': None,\n  'function_call': None,\n  'provider_specific_fields': None,\n  'agent': 'saver'}]\n\n\n\na = Agent(m, name=\"test\", sp=\"simple test\", tools=[mult])\nr = Runner(a)\nfor event in r.stream(\"First give a small intro, then multiply 598235 * 2983535 and give me the result\"):\n    print(event)\n\n{'role': 'assistant', 'content': 'I have', 'agent': 'test'}\n{'role': 'assistant', 'content': ' access to a multiplication function that can help with your calculation. Let me use it to multiply those two large numbers for', 'agent': 'test'}\n{'role': 'assistant', 'content': ' you.', 'agent': 'test'}\n{'role': 'tool', 'tool_call_id': 'toolu_01K3AQhoKgYZVwhAcpizniFD', 'content': '1784855060725', 'agent': 'test', 'function': {'arguments': '{\"a\": 598235, \"b\": 2983535}', 'name': 'mult'}}\n{'role': 'assistant', 'content': \"Here's your\", 'agent': 'test'}\n{'role': 'assistant', 'content': \" result:\\n\\n**598235 × 2,983,535 = 1,784,855,060,725**\\n\\nThat's over 1\", 'agent': 'test'}\n{'role': 'assistant', 'content': \".7 trillion! These are fairly large numbers, so it's easy\", 'agent': 'test'}\n{'role': 'assistant', 'content': ' to see why having a tool to handle the multiplication accurately is helpful.', 'agent': 'test'}",
+    "crumbs": [
+      "Imports"
+    ]
+  },
+  {
+    "objectID": "00_core.html#local-models",
+    "href": "00_core.html#local-models",
+    "title": "kitai",
+    "section": "Local models",
+    "text": "Local models\nYou can inference on a local model (e.g., vLLM hoste) by creating the agent like:\na = Agent(\"openai/model_name\", llm_kwargs={\"api_base\": \"http://localhost:8000/v1\", \"api_key\": \"none\"})\nReplacing model_name with the name provided when launching vLLM.",
+    "crumbs": [
+      "Imports"
+    ]
+  }
+]
